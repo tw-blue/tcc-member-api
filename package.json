@@ -1,0 +1,24 @@
+{
+    "name": "tcc-db",
+    "description": "",
+    "version": "0.1.0",
+    "private": true,
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js",
+        "deploy": "gcloud run deploy tcc-member-db --source .",
+        "dev": "gcloud beta code dev --application-default-credential --impersonate-service-account 744366924996-compute@developer.gserviceaccount.com"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "author": "Toni Walter <toniwalter.blue@gmail.com>",
+    "license": "(NONE)",
+    "dependencies": {
+        "@google-cloud/firestore": "^6.7.0",
+        "express": "^4.17.1",
+        "firebase-admin": "^11.10.1",
+        "google-auth-library": "^9.0.0"
+    }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sample FirebaseUI App</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    <script type="text/javascript">
+        async function init() {
+            const response = await fetch("/firebase-config.json")
+            const firebaseConfig = await response.json();
+
+            const app = firebase.initializeApp(firebaseConfig);
+
+            var uiConfig = {
+                callbacks: {
+                    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                        var user = authResult.user;
+                        var credential = authResult.credential;
+                        var isNewUser = authResult.additionalUserInfo.isNewUser;
+                        var providerId = authResult.additionalUserInfo.providerId;
+                        var operationType = authResult.operationType;
+                        // Do something with the returned AuthResult.
+                        // Return type determines whether we continue the redirect
+                        // automatically or whether we leave that to developer to handle.
+                        return true;
+                    },
+                    signInFailure: function (error) {
+                        // Some unrecoverable error occurred during sign-in.
+                        // Return a promise when error handling is completed and FirebaseUI
+                        // will reset, clearing any UI. 
+                        return handleUIError(error);
+                    },
+                    uiShown: function () {
+                        // The widget is rendered.
+                        // Hide the loader.
+                        document.getElementById('loader').style.display = 'none';
+                    }
+                },
+                credentialHelper: firebaseui.auth.CredentialHelper.NONE,
+                // Query parameter name for mode.
+                queryParameterForWidgetMode: 'mode',
+                // Query parameter name for sign in success url.
+                queryParameterForSignInSuccessUrl: 'signInSuccessUrl',
+                signInFlow: 'redirect',
+                signInSuccessUrl: '/auth',
+                signInOptions: [
+                    {
+                        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                        // Whether the display name should be displayed in the Sign Up page.
+                        requireDisplayName: true
+                    }
+                ],
+                tosUrl: '<your-tos-url>',
+                privacyPolicyUrl: '<your-privacy-policy-url>'
+            };
+
+            //await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            var ui = new firebaseui.auth.AuthUI(firebase.auth());
+            // The start method will wait until the DOM is loaded.
+            ui.start('#firebaseui-auth-container', uiConfig);
+        }
+
+        init();
+    </script>
+</head>
+
+<body>
+    <!-- The surrounding HTML is left untouched by FirebaseUI.
+         Your app may use that space for branding, controls and other customizations.-->
+    <h1>Welcome to My Awesome App</h1>
+    <div id="firebaseui-auth-container"></div>
+    <div id="loader">Loading...</div>
+</body>
+
+</html>
