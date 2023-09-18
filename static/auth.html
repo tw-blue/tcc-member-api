@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -11,6 +12,8 @@
             const firebaseConfig = await response.json();
 
             const app = firebase.initializeApp(firebaseConfig);
+            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
             userPromise = new Promise((resolve, reject) => {
                 firebase.auth().onAuthStateChanged((user) => {
                     if (user) {
@@ -52,11 +55,49 @@
         }
 
         async function logout() {
-            firebase.auth().signOut().then(() => {
+            const response = await fetch("/sessionLogout", method = 'POST');
+
+            if (response.ok) {
                 window.alert("success");
-            }).catch((error) => {
+            } else {
                 window.alert("fail");
+            };
+        }
+
+        async function promote() {
+            const token = await firebase.auth().currentUser.getIdToken();
+            const response = await fetch("/promote", {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
+            if (response.ok) {
+                firebase.auth().signOut().then(() => {
+                    window.alert("success");
+                    window.location.replace("/login");
+                }).catch((error) => {
+                    window.alert("fail");
+                });
+            }
+        }
+
+        async function demote() {
+            const token = await firebase.auth().currentUser.getIdToken();
+            const response = await fetch("/demote", {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                firebase.auth().signOut().then(() => {
+                    window.alert("success");
+                    window.location.replace("/login");
+                }).catch((error) => {
+                    window.alert("fail");
+                });
+            }
         }
 
         init();
@@ -69,6 +110,8 @@
     <input type="text" name="team" id="team">
     <button onclick="vote()">Vote</button>
     <button onclick="logout()">Logout</button>
+    <button onclick="promote()">Promote</button>
+    <button onclick="demote()">Demote</button>
 </body>
 
 </html>

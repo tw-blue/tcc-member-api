@@ -4,16 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Sample FirebaseUI App</title>
+    <style>
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__de.js"></script>
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
     <script type="text/javascript">
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
         async function init() {
             const response = await fetch("/firebase-config.json")
             const firebaseConfig = await response.json();
 
             const app = firebase.initializeApp(firebaseConfig);
+            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
 
             var uiConfig = {
                 callbacks: {
@@ -23,10 +48,18 @@
                         var isNewUser = authResult.additionalUserInfo.isNewUser;
                         var providerId = authResult.additionalUserInfo.providerId;
                         var operationType = authResult.operationType;
+
+                        if (isNewUser) {//Email verification required for MFA
+                            firebase.auth().currentUser.sendEmailVerification()
+                                .then(() => {
+                                    // Email verification sent!
+                                    console.log("sent");
+                                });
+                        }
                         // Do something with the returned AuthResult.
                         // Return type determines whether we continue the redirect
                         // automatically or whether we leave that to developer to handle.
-                        return true;
+                        return false;
                     },
                     signInFailure: function (error) {
                         // Some unrecoverable error occurred during sign-in.
@@ -40,7 +73,6 @@
                         document.getElementById('loader').style.display = 'none';
                     }
                 },
-                credentialHelper: firebaseui.auth.CredentialHelper.NONE,
                 // Query parameter name for mode.
                 queryParameterForWidgetMode: 'mode',
                 // Query parameter name for sign in success url.
@@ -58,10 +90,33 @@
                 privacyPolicyUrl: '<your-privacy-policy-url>'
             };
 
-            //await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
             var ui = new firebaseui.auth.AuthUI(firebase.auth());
             // The start method will wait until the DOM is loaded.
             ui.start('#firebaseui-auth-container', uiConfig);
+
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    user.getIdToken().then(idToken => {
+                        const csrfToken = getCookie('_csrf');
+                        fetch("/sessionLogin", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `idToken=${idToken}&csrfToken=${csrfToken}`,
+                        }).then((result)=>{
+                            firebase.auth().signOut().then(()=>{
+                                window.location.assign('/profile');
+                            });
+                        });
+                        //return postIdTokenToSessionLogin('/sessionLogin', idToken, csrfToken);
+                    });
+            
+                } else {
+                    // User is signed out
+                    //TODO abort
+                }
+            });
         }
 
         init();
@@ -71,9 +126,18 @@
 <body>
     <!-- The surrounding HTML is left untouched by FirebaseUI.
          Your app may use that space for branding, controls and other customizations.-->
-    <h1>Welcome to My Awesome App</h1>
+    <h1 class="center">Welcome to My Awesome App</h1>
     <div id="firebaseui-auth-container"></div>
     <div id="loader">Loading...</div>
+    <div class="center" style="font-weight: bold;">
+        <h3>Passwortanforderungen:</h3>
+        <ui>
+            <li>Mindestens 12 Zeichen</li>
+            <li>Groß- und Kleinbuchstaben</li>
+            <li>Ziffern</li>
+            <li>Sonderzeichen ^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , &gt; &lt; ' : ; | _ ~ `</li>
+        </ui>
+    </div>
 </body>
 
 </html>

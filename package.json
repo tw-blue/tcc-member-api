@@ -8,7 +8,8 @@
     "scripts": {
         "start": "node index.js",
         "deploy": "gcloud run deploy tcc-member-db --source .",
-        "dev": "gcloud beta code dev --application-default-credential --impersonate-service-account 744366924996-compute@developer.gserviceaccount.com"
+        "dev": "gcloud alpha code dev --env-vars LOCAL_DEV=1 --service-account 744366924996-compute@developer.gserviceaccount.com",
+        "_comment": "using gcloud alpha for --env-vars"
     },
     "engines": {
         "node": ">=16.0.0"
@@ -17,6 +18,9 @@
     "license": "(NONE)",
     "dependencies": {
         "@google-cloud/firestore": "^6.7.0",
+        "cookie-parser": "^1.4.6",
+        "csurf": "^1.11.0",
+        "ejs": "^3.1.9",
         "express": "^4.17.1",
         "firebase-admin": "^11.10.1",
         "google-auth-library": "^9.0.0"
