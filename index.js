@@ -1,82 +1,53 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
-var csrfProtect = csrf({ cookie: true });
+const express = require('express');
+const session = require("express-session");
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const fs = require('fs');
+const firebase = require("firebase-admin");
+const FirebaseStore = require('connect-session-firebase')(session);
+
+const firebaseConfig= require('./static/firebase-config.json');
+// Initialize Firebase Admin SDK
+const firebaseApp=firebase.initializeApp(firebaseConfig);
+
+
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(cookieParser());
-
-import firebase from "firebase-admin";
-
-import { readFile } from 'fs/promises';
-const firebaseConfig = JSON.parse(
-  await readFile(
-    new URL('./static/firebase-config.json', import.meta.url)
-  )
-);
-// Initialize Firebase Admin SDK
-firebase.initializeApp(firebaseConfig);
-
+app.use(session({
+  store: new FirebaseStore({database: firebaseApp.database()}),
+  secret: 'keyboard cat',//TODO use secret manager for this
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 24, sameSite: 'strict' }
+}));
+app.use(express.urlencoded({ extended: false }));
+app.set('view engine', 'ejs');
+app.use(csrf());
 
 
-// Update project config with password policy config
-/*firebase.auth().projectConfigManager().updateProjectConfig({
-  passwordPolicyConfig: {
-    enforcementState: 'ENFORCE',
-    forceUpgradeOnSignin: true,
-    constraints: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNonAlphanumeric: true,
-      requireNumeric: true,
-      minLength: 12
-    },
-  },
-})
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);*/
-
-/*const authenticateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    // If the provided ID token has the correct format, is not expired, and is
-    // properly signed, the method returns the decoded ID token
-    firebase
-      .auth()
-      .verifyIdToken(token)
-      .then(decodedToken => {
-        req.token = decodedToken;
-        next();
-      })
-      .catch(err => {
-        console.log(`Error with authentication: ${err}`);
-        return res.sendStatus(403);
-      });
-  } else {
-    return res.sendStatus(401);
-  }
-};*/
-
-const authenticateJWT=(req,res,next)=>{
+const authenticateJWT = (req, res, next) => {
   const sessionCookie = req.cookies.session || '';
   firebase.auth()
-    .verifySessionCookie(sessionCookie, true)
-    .then((decodedToken) => {
-      req.token=decodedToken;
-      next();
-    })
-    .catch((error) => {
-      // Session cookie is unavailable or invalid. Force user to login.
-      res.redirect('/login');
-    });
+  .verifySessionCookie(sessionCookie, true)
+  .then((decodedToken) => {
+    req.token = decodedToken;
+    next();
+  })
+  .catch(error => res.redirect('/login'));
 }
 
-const verifyClaims = (claims, req, res, next) => {
+const verifyClaims = (...claims) => {
+  return verifyClaimsIntern.bind(null, claims);
+}
+
+const verifyClaimsIntern = (claims, req, res, next) => {
   if (req.token) {
     if (claims.every(requiredToken => req.token[requiredToken] === true)) {
       next();
     } else {
-      console.log(`Error with authentication: missing required claim(s)`);
+      console.log(`Missing 1 or more claims of the following: ${claims.toString()}`);
       return res.sendStatus(403);
     }
   } else {
@@ -84,68 +55,55 @@ const verifyClaims = (claims, req, res, next) => {
   }
 }
 
-/*import { Firestore } from '@google-cloud/firestore';
-
-const firestore = new Firestore({
-  projectId: 'tcc-1-ev-intern'
-});
-
-async function getDocuments(uid) {
-  const entries = (await firestore.collection("AccessControl").where('uid', '==', uid).where('viewMemberData', '==', true).count().get()).data().count;
-  if (entries === 1) {
-    return true;
-  } else {
-    //No Permission or error
-    return false;
-  }
-}*/
-
-app.use(express.urlencoded({ extended: false }));
-app.set('view engine', 'ejs');
-
-app.use("/login", csrfProtect);
 app.use(express.static("static", { index: false, extensions: ['html'] }));
+
+app.get("/login", (req, res) => {
+  res.render("login", { csrfToken: req.csrfToken() });
+});
+app.get("/auth", authenticateJWT, (req,res)=>{
+  res.render("auth",{csrfToken:req.csrfToken()});
+})
 
 app.get('/', (req, res) => {
   res.redirect('/login')
 });
 
-
-app.get("/promote", authenticateJWT, (req, res) => {
-  firebase.auth().setCustomUserClaims(req.token.uid, { viewMembers: true, manageUsers: true });
-  res.send("Ok");
+app.post("/rights", authenticateJWT, (req, res) => {
+  if (req.query.action) {
+    switch (req.query.action) {
+      case "promote":
+        firebase.auth().setCustomUserClaims(req.token.uid, { viewMembers: true, manageUsers: true });
+        logout(req, res);
+        break;
+      case "demote":
+        firebase.auth().setCustomUserClaims(req.token.uid, null);
+        logout(req, res);
+        break;
+    }
+  }
 });
-app.get("/demote", authenticateJWT, (req, res) => {
-  firebase.auth().setCustomUserClaims(req.token.uid, null);
-  res.send("OK");
-});
 
-app.post("/vote", authenticateJWT, verifyClaims.bind(null, ['viewMembers']), (req, res) => {
+app.post("/vote", authenticateJWT, verifyClaims('viewMembers'), (req, res) => {
   res.send("Permitted");
 });
 
-app.get("/users", authenticateJWT, verifyClaims.bind(null, ['manageUsers']), (req, res) => {
+app.get("/users", authenticateJWT, verifyClaims('manageUsers'), (req, res) => {
   //TODO implement pagination if there are ever more than 50 users
   firebase.auth().listUsers(50).then((result) => {
     const userData = [];
+    result.users.map
     result.users.forEach(userRecord => {
-      let viewMembers=false;
-      let manageUsers=false;
-      if(userRecord.customClaims){
-        if(userRecord.customClaims.manageUsers &&userRecord.customClaims.manageUsers===true){
-          manageUsers=true;
-        }
-        if(userRecord.customClaims.viewMembers &&userRecord.customClaims.viewMembers===true){
-          viewMembers=true;
-        }
-      }
+      userRecord.customClaims ??= [];
+      userRecord.customClaims.manageUsers ??= false;
+      userRecord.customClaims.viewMembers ??= false;
       userData.push({
-        name:userRecord.displayName,
-        email:userRecord.email,
-        viewMembers:viewMembers,
-        manageUsers:manageUsers});
+        name: userRecord.displayName,
+        email: userRecord.email,
+        viewMembers: userRecord.customClaims.viewMembers,
+        manageUsers: userRecord.customClaims.manageUsers
+      });
     });
-    res.render("users", {users:userData});
+    res.render("users", { users: userData });
   }).catch((error) => {
     console.log('Error listing users:', error);
   });
@@ -154,11 +112,6 @@ app.get("/users", authenticateJWT, verifyClaims.bind(null, ['manageUsers']), (re
 
 app.post('/sessionLogin', (req, res) => {
   const idToken = req.body.idToken.toString();
-  const csrfToken = req.body.csrfToken.toString();
-  if (csrfToken !== req.cookies._csrf) {
-    res.status(401).send('UNAUTHORIZED REQUEST!');
-    return;
-  }
 
   firebase.auth().verifyIdToken(idToken).then((decodedIdToken) => {
     //Only accept recent id tokens to avoid stolen tokens
@@ -167,40 +120,28 @@ app.post('/sessionLogin', (req, res) => {
       firebase.auth().createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
         const options = { maxAge: expiresIn, httpOnly: true, secure: true };
         res.cookie('session', sessionCookie, options);
-        res.end(JSON.stringify({ status: 'success' }));
+        res.status(200).end(JSON.stringify({ status: 'success' }));
       },
         (error) => {
           res.status(401).send('UNAUTHROIZED REQUEST!');
         });
-    }else{
+    } else {
       res.status(401).send('Recent sign in required!');
     }
   });
 });
 
-app.get('/profile', (req, res) => {
-  const sessionCookie = req.cookies.session || '';
-  // Verify the session cookie. In this case an additional check is added to detect
-  // if the user's Firebase session was revoked, user deleted/disabled, etc.
-  firebase.auth()
-    .verifySessionCookie(sessionCookie, true /** checkRevoked */)
-    .then((decodedClaims) => {
-      res.send(JSON.stringify(decodedClaims));
-      //serveContentForUser('/profile', req, res, decodedClaims);
-    })
-    .catch((error) => {
-      // Session cookie is unavailable or invalid. Force user to login.
-      res.redirect('/login');
-    });
+app.get('/profile', authenticateJWT, (req, res) => {
+  res.send(JSON.stringify(req.token));
 });
 
-app.post('/sessionLogout', (req, res) => {
+function logout(req, res){
   const sessionCookie = req.cookies.session || '';
   res.clearCookie('session');
-  getAuth()
+  firebase.auth()
     .verifySessionCookie(sessionCookie)
     .then((decodedClaims) => {
-      return getAuth().revokeRefreshTokens(decodedClaims.sub);
+      return firebase.auth().revokeRefreshTokens(decodedClaims.sub);
     })
     .then(() => {
       res.redirect('/login');
@@ -208,10 +149,13 @@ app.post('/sessionLogout', (req, res) => {
     .catch((error) => {
       res.redirect('/login');
     });
+}
+
+app.post('/sessionLogout', (req, res) => {
+  logout(req, res);
 });
 
-import https from 'https';
-import fs from 'fs';
+
 
 const port = parseInt(process.env.PORT) || 8080;
 if (!process.env.LOCAL_DEV) {
@@ -219,6 +163,7 @@ if (!process.env.LOCAL_DEV) {
     console.log(`server listening on port ${port}`);
   });
 } else {
+  const https = require('https');
   //enable direct https when developing locally
   const credentials = {
     key: fs.readFileSync('./localhost-key.pem', 'utf-8'),
@@ -229,3 +174,7 @@ if (!process.env.LOCAL_DEV) {
     console.log(`server listening on port ${port}`);
   });
 }
+
+
+//TODO check email verification?
+//TODO look into CORS & OWASP Checklist
