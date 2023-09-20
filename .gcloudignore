@@ -1,0 +1,7 @@
+.gcloudignore
+.git
+.gitignore
+/node_modules/
+firebaseConfigScript.js
+localhost.pem
+localhost-key.pem
