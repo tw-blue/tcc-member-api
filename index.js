@@ -60,11 +60,19 @@ const verifyClaimsIntern = (claims, req, res, next) => {
 
 app.use(express.static("static", { index: false, extensions: ['html'] }));
 
-app.get("/login", (req, res) => {
-  res.render("login", { csrfToken: req.csrfToken() });
+const formPages=[
+  "login","auth","neu"
+];
+formPages.forEach(name=>{
+    app.get("/"+name, (req,res)=>{
+      res.render(name, { csrfToken: req.csrfToken() });
+    })
 });
-app.get("/auth", authenticateJWT, (req,res)=>{
-  res.render("auth",{csrfToken:req.csrfToken()});
+
+app.post("/neu", authenticateJWT, verifyClaims("viewMembers"), (req,res)=>{
+  console.dir(req.body);
+  res.send("OK");
+  //TODO transfer data into firestore
 })
 
 app.get('/', (req, res) => {
@@ -132,10 +140,6 @@ app.post('/sessionLogin', (req, res) => {
       res.status(401).send('Recent sign in required!');
     }
   });
-});
-
-app.get('/profile', authenticateJWT, (req, res) => {
-  res.send(JSON.stringify(req.token));
 });
 
 function logout(req, res){

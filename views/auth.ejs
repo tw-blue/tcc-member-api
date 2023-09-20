@@ -7,7 +7,7 @@
 
 <body>
     OK
-    <form action="/vote" method="post" enctype="application/x-www-form-urlencoded">
+    <form action="/vote" method="post">
         <label for="team">Team:</label>
         <input type="text" name="team">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">

@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Neue Taekwondoin eintragen</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: space-around;
+            flex-wrap: wrap;
+            min-height: 100vh;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 100px 200px;
+            row-gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Neue Taekwondoin eintragen</h2>
+    <form method="post" action="/neu">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label for="vorname">Vorname</label>
+        <input type="text" name="vorname">
+        <label for="Nachname">Nachname</label>
+        <input type="text" name="nachname">
+        <label for="geburt">Geburtstag</label>
+        <input type="date" name="geburt">
+        <label for="uvertrag">Unterrichtsvertrag komplett?</label>
+        <input type="checkbox" name="uvertrag">
+        <label for="verein">Verein beigetreten?</label>
+        <input type="checkbox" name="verein">
+        <button type="submit">Absenden</button>
+    </form>
+</body>
+
+</html>
