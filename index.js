@@ -1,17 +1,31 @@
-const express = require('express');
-const session = require("express-session");
-const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
-const fs = require('fs');
-const firebase = require("firebase-admin");
-const FirebaseStore = require('connect-session-firebase')(session);
+import express from 'express';
+import session from "express-session";
+import cookieParser from 'cookie-parser';
+import csrf from 'csurf';
+import fs, {readFileSync} from 'fs';
+import firebase from "firebase-admin";
+import {initializeApp} from "firebase-admin/app";
+import {getAuth} from "firebase-admin/auth";
+import { getDatabase } from 'firebase-admin/database';
+import connectSessionFirebase from 'connect-session-firebase';
+const FirebaseStore=connectSessionFirebase(session);
 
-const firebaseConfig= require('./static/firebase-config.json');
-const serviceAccount=require('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
+const importJson = (filename)=>JSON.parse(
+  readFileSync(
+    new URL(filename, import.meta.url)
+  )
+);
+
+const firebaseConfig= importJson('./static/firebase-config.json');
+const serviceAccount=importJson('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
+/* TODO use this as soon as import assertion stabilizes!
+import firebaseConfig from './static/firebase-config.json' assert { type: 'json' };
+import serviceAccount from './tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json' assert { type: 'json' };//TODO use secret manager for (both of) this
+*/
 firebaseConfig["credential"]=firebase.credential.cert(serviceAccount);
 
 // Initialize Firebase Admin SDK
-const firebaseApp=firebase.initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 
 
 
@@ -19,7 +33,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(cookieParser());
 app.use(session({
-  store: new FirebaseStore({database: firebaseApp.database()}),
+  store: new FirebaseStore({database: getDatabase()}),
   secret: 'keyboard cat',//TODO use secret manager for this
   resave: false,
   saveUninitialized: false,
@@ -32,7 +46,7 @@ app.use(csrf());
 
 const authenticateJWT = (req, res, next) => {
   const sessionCookie = req.cookies.session || '';
-  firebase.auth()
+  getAuth()
   .verifySessionCookie(sessionCookie, true)
   .then((decodedToken) => {
     req.token = decodedToken;
@@ -83,11 +97,11 @@ app.post("/rights", authenticateJWT, (req, res) => {
   if (req.query.action) {
     switch (req.query.action) {
       case "promote":
-        firebase.auth().setCustomUserClaims(req.token.uid, { viewMembers: true, manageUsers: true });
+        getAuth().setCustomUserClaims(req.token.uid, { viewMembers: true, manageUsers: true });
         logout(req, res);
         break;
       case "demote":
-        firebase.auth().setCustomUserClaims(req.token.uid, null);
+        getAuth().setCustomUserClaims(req.token.uid, null);
         logout(req, res);
         break;
     }
@@ -100,7 +114,7 @@ app.post("/vote", authenticateJWT, verifyClaims('viewMembers'), (req, res) => {
 
 app.get("/users", authenticateJWT, verifyClaims('manageUsers'), (req, res) => {
   //TODO implement pagination if there are ever more than 50 users
-  firebase.auth().listUsers(50).then((result) => {
+  getAuth().listUsers(50).then((result) => {
     const userData = [];
     result.users.map
     result.users.forEach(userRecord => {
@@ -124,11 +138,11 @@ app.get("/users", authenticateJWT, verifyClaims('manageUsers'), (req, res) => {
 app.post('/sessionLogin', (req, res) => {
   const idToken = req.body.idToken.toString();
 
-  firebase.auth().verifyIdToken(idToken).then((decodedIdToken) => {
+  getAuth().verifyIdToken(idToken).then((decodedIdToken) => {
     //Only accept recent id tokens to avoid stolen tokens
     if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
       const expiresIn = 60 * 60 * 24 * 5 * 1000;
-      firebase.auth().createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
+      getAuth().createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
         const options = { maxAge: expiresIn, httpOnly: true, secure: true };
         res.cookie('session', sessionCookie, options);
         res.status(200).end(JSON.stringify({ status: 'success' }));
@@ -145,10 +159,10 @@ app.post('/sessionLogin', (req, res) => {
 function logout(req, res){
   const sessionCookie = req.cookies.session || '';
   res.clearCookie('session');
-  firebase.auth()
+  getAuth()
     .verifySessionCookie(sessionCookie)
     .then((decodedClaims) => {
-      return firebase.auth().revokeRefreshTokens(decodedClaims.sub);
+      return getAuth().revokeRefreshTokens(decodedClaims.sub);
     })
     .then(() => {
       res.redirect('/login');
@@ -162,24 +176,23 @@ app.post('/sessionLogout', (req, res) => {
   logout(req, res);
 });
 
-
-
 const port = parseInt(process.env.PORT) || 8080;
 if (!process.env.LOCAL_DEV) {
   app.listen(port, () => {
     console.log(`server listening on port ${port}`);
   });
 } else {
-  const https = require('https');
   //enable direct https when developing locally
-  const credentials = {
-    key: fs.readFileSync('./localhost-key.pem', 'utf-8'),
-    cert: fs.readFileSync('./localhost.pem', 'utf-8'),
-  };
-
-  https.createServer(credentials, app).listen(port, () => {
-    console.log(`server listening on port ${port}`);
-  });
+  import('https').then((https)=>{
+    const credentials = {
+      key: fs.readFileSync('./localhost-key.pem', 'utf-8'),
+      cert: fs.readFileSync('./localhost.pem', 'utf-8'),
+    };
+  
+    https.createServer(credentials, app).listen(port, () => {
+      console.log(`server listening on port ${port}`);
+    });
+  })
 }
 
 
