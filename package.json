@@ -6,8 +6,8 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "deploy": "gcloud run deploy tcc-member-db --source .",
-        "dev": "gcloud alpha code dev --env-vars LOCAL_DEV=1 --service-account 744366924996-compute@developer.gserviceaccount.com",
+        "deploy": "gcloud builds submit --gcs-staging-dir='gs://tcc-1-ev-intern_cloudbuild/source/' --region=europe-west1 --pack image=gcr.io/tcc-1-ev-intern/tcc-member-db . && gcloud run deploy tcc-member-db --region=europe-west1 --image gcr.io/tcc-1-ev-intern/tcc-member-db",
+        "dev": "gcloud alpha code dev --env-vars LOCAL_DEV=1 --service-account tcc-member-db@tcc-1-ev-intern.iam.gserviceaccount.com",
         "_comment": "using gcloud alpha for --env-vars"
     },
     "engines": {
