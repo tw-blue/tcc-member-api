@@ -7,6 +7,9 @@ const firebase = require("firebase-admin");
 const FirebaseStore = require('connect-session-firebase')(session);
 
 const firebaseConfig= require('./static/firebase-config.json');
+const serviceAccount=require('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
+firebaseConfig["credential"]=firebase.credential.cert(serviceAccount);
+
 // Initialize Firebase Admin SDK
 const firebaseApp=firebase.initializeApp(firebaseConfig);
 
