@@ -1,7 +1,7 @@
 import express from 'express';
 import session from "express-session";
 import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
+import { csrfSync } from "csrf-sync";
 import fs, {readFileSync} from 'fs';
 import firebase from "firebase-admin";
 import {initializeApp} from "firebase-admin/app";
@@ -41,7 +41,11 @@ app.use(session({
 }));
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
-app.use(csrf());
+
+const {csrfSynchronisedProtection} = csrfSync({
+  getTokenFromRequest:req=>req.headers['x-csrf-token'] ?? req.query['_csrf'] ?? req.body['_csrf']
+});
+app.use(csrfSynchronisedProtection);
 
 
 const authenticateJWT = (req, res, next) => {
