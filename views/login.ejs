@@ -14,21 +14,36 @@
             align-content: center;
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__de.js"></script>
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
-    <script type="text/javascript">
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js",
+                "firebaseui_de": "https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__de.js",
+                "firebase/compat/app": "https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js",
+                "firebase/compat/auth": "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"
+            }
+          }
+    </script>
+    <script type="module">
+        import "firebaseui_de";
+        import "firebase/compat/app";
+        import 'firebase/compat/auth';
+        import {initializeApp} from "firebase/app";
+        import {getAuth, setPersistence, inMemoryPersistence, EmailAuthProvider} from "firebase/auth";
+
+        
         window.onpageshow = function () {
             init()
         }
         async function init() {
             const response = await fetch("/firebase-config.json")
             const firebaseConfig = await response.json();
-
-            const app = firebase.initializeApp(firebaseConfig);
-            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
-
+            const app = initializeApp(firebaseConfig);
+            const auth=getAuth();
+            setPersistence(auth, inMemoryPersistence);
+            
 
             var uiConfig = {
                 callbacks: {
@@ -63,7 +78,7 @@
                 signInFlow: 'redirect',
                 signInOptions: [
                     {
-                        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                        provider: EmailAuthProvider.PROVIDER_ID,
                         requireDisplayName: true
                     }
                 ],
@@ -71,7 +86,7 @@
                 privacyPolicyUrl: 'https://taekwondo-chemnitz.de/datenschutzerklaerung/'
             };
 
-            var ui = new firebaseui.auth.AuthUI(firebase.auth());
+            var ui = new firebaseui.auth.AuthUI(auth);
             ui.start('#firebaseui-auth-container', uiConfig);
         }
     </script>
