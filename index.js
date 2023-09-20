@@ -2,27 +2,27 @@ import express from 'express';
 import session from "express-session";
 import cookieParser from 'cookie-parser';
 import { csrfSync } from "csrf-sync";
-import fs, {readFileSync} from 'fs';
+import fs, { readFileSync } from 'fs';
 import firebase from "firebase-admin";
-import {initializeApp} from "firebase-admin/app";
-import {getAuth} from "firebase-admin/auth";
+import { initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import { getDatabase } from 'firebase-admin/database';
 import connectSessionFirebase from 'connect-session-firebase';
-const FirebaseStore=connectSessionFirebase(session);
+const FirebaseStore = connectSessionFirebase(session);
 
-const importJson = (filename)=>JSON.parse(
+const importJson = (filename) => JSON.parse(
   readFileSync(
     new URL(filename, import.meta.url)
   )
 );
 
-const firebaseConfig= importJson('./static/firebase-config.json');
-const serviceAccount=importJson('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
+const firebaseConfig = importJson('./static/firebase-config.json');
+const serviceAccount = importJson('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
 /* TODO use this as soon as import assertion stabilizes!
 import firebaseConfig from './static/firebase-config.json' assert { type: 'json' };
 import serviceAccount from './tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json' assert { type: 'json' };//TODO use secret manager for (both of) this
 */
-firebaseConfig["credential"]=firebase.credential.cert(serviceAccount);
+firebaseConfig["credential"] = firebase.credential.cert(serviceAccount);
 
 // Initialize Firebase Admin SDK
 initializeApp(firebaseConfig);
@@ -33,7 +33,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(cookieParser());
 app.use(session({
-  store: new FirebaseStore({database: getDatabase()}),
+  store: new FirebaseStore({ database: getDatabase() }),
   secret: 'keyboard cat',//TODO use secret manager for this
   resave: false,
   saveUninitialized: false,
@@ -42,8 +42,8 @@ app.use(session({
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 
-const {csrfSynchronisedProtection} = csrfSync({
-  getTokenFromRequest:req=>req.headers['x-csrf-token'] ?? req.query['_csrf'] ?? req.body['_csrf']
+const { csrfSynchronisedProtection } = csrfSync({
+  getTokenFromRequest: req => req.headers['x-csrf-token'] ?? req.query['_csrf'] ?? req.body['_csrf']
 });
 app.use(csrfSynchronisedProtection);
 
@@ -51,12 +51,12 @@ app.use(csrfSynchronisedProtection);
 const authenticateJWT = (req, res, next) => {
   const sessionCookie = req.cookies.session || '';
   getAuth()
-  .verifySessionCookie(sessionCookie, true)
-  .then((decodedToken) => {
-    req.token = decodedToken;
-    next();
-  })
-  .catch(error => res.redirect('/login'));
+    .verifySessionCookie(sessionCookie, true)
+    .then((decodedToken) => {
+      req.token = decodedToken;
+      next();
+    })
+    .catch(error => res.redirect('/login'));
 }
 
 const verifyClaims = (...claims) => {
@@ -78,16 +78,16 @@ const verifyClaimsIntern = (claims, req, res, next) => {
 
 app.use(express.static("static", { index: false, extensions: ['html'] }));
 
-const formPages=[
-  "login","auth","neu"
+const formPages = [
+  "login", "auth", "neu"
 ];
-formPages.forEach(name=>{
-    app.get("/"+name, (req,res)=>{
-      res.render(name, { csrfToken: req.csrfToken() });
-    })
+formPages.forEach(name => {
+  app.get("/" + name, (req, res) => {
+    res.render(name, { csrfToken: req.csrfToken() });
+  })
 });
 
-app.post("/neu", authenticateJWT, verifyClaims("viewMembers"), (req,res)=>{
+app.post("/neu", authenticateJWT, verifyClaims("viewMembers"), (req, res) => {
   console.dir(req.body);
   res.send("OK");
   //TODO transfer data into firestore
@@ -160,7 +160,7 @@ app.post('/sessionLogin', (req, res) => {
   });
 });
 
-function logout(req, res){
+function logout(req, res) {
   const sessionCookie = req.cookies.session || '';
   res.clearCookie('session');
   getAuth()
@@ -187,12 +187,12 @@ if (!process.env.LOCAL_DEV) {
   });
 } else {
   //enable direct https when developing locally
-  import('https').then((https)=>{
+  import('https').then((https) => {
     const credentials = {
       key: fs.readFileSync('./localhost-key.pem', 'utf-8'),
       cert: fs.readFileSync('./localhost.pem', 'utf-8'),
     };
-  
+
     https.createServer(credentials, app).listen(port, () => {
       console.log(`server listening on port ${port}`);
     });
