@@ -1,8 +1,9 @@
 <!doctype html>
-<html>
+<html lang="de">
 
 <head>
     <title>Neue Taekwondoin eintragen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             display: flex;
@@ -26,15 +27,15 @@
     <form method="post" action="/neu">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label for="vorname">Vorname</label>
-        <input type="text" name="vorname">
+        <input type="text" name="vorname" id="vorname">
         <label for="Nachname">Nachname</label>
-        <input type="text" name="nachname">
+        <input type="text" name="nachname" id="nachname">
         <label for="geburt">Geburtstag</label>
-        <input type="date" name="geburt">
+        <input type="date" name="geburt" id="geburt">
         <label for="uvertrag">Unterrichtsvertrag komplett?</label>
-        <input type="checkbox" name="uvertrag">
+        <input type="checkbox" name="uvertrag" id="uvertrag">
         <label for="verein">Verein beigetreten?</label>
-        <input type="checkbox" name="verein">
+        <input type="checkbox" name="verein" id="verein">
         <button type="submit">Absenden</button>
     </form>
 </body>

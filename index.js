@@ -49,7 +49,7 @@ app.use(csrfSynchronisedProtection);
 
 
 const authenticateJWT = (req, res, next) => {
-  const sessionCookie = req.cookies.session || '';
+  const sessionCookie = req.cookies['firebase-session'] || '';
   getAuth()
     .verifySessionCookie(sessionCookie, true)
     .then((decodedToken) => {
@@ -113,6 +113,7 @@ app.post("/rights", authenticateJWT, (req, res) => {
 });
 
 app.post("/vote", authenticateJWT, verifyClaims('viewMembers'), (req, res) => {
+  res.contentType("text/plain");
   res.send("Permitted");
 });
 
@@ -147,8 +148,8 @@ app.post('/sessionLogin', (req, res) => {
     if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
       const expiresIn = 60 * 60 * 24 * 5 * 1000;
       getAuth().createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
-        const options = { maxAge: expiresIn, httpOnly: true, secure: true };
-        res.cookie('session', sessionCookie, options);
+        const options = { maxAge: expiresIn, httpOnly: true, secure: true, sameSite: 'strict' };
+        res.cookie('firebase-session', sessionCookie, options);
         res.status(200).end(JSON.stringify({ status: 'success' }));
       },
         (error) => {
@@ -162,7 +163,7 @@ app.post('/sessionLogin', (req, res) => {
 
 function logout(req, res) {
   const sessionCookie = req.cookies.session || '';
-  res.clearCookie('session');
+  res.clearCookie('firebase-session');
   getAuth()
     .verifySessionCookie(sessionCookie)
     .then((decodedClaims) => {

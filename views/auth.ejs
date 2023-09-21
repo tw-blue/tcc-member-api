@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 
 <head>
     <title>Successful Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
     OK
     <form action="/vote" method="post">
         <label for="team">Team:</label>
-        <input type="text" name="team">
+        <input type="text" name="team" id="team">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit">Vote</button>
     </form>

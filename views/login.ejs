@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 
 <head>
     <meta charset="UTF-8">
     <title>Login 1. TC Chemnitz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             min-height: 100vh;
@@ -14,7 +15,25 @@
             align-content: center;
         }
     </style>
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    <link type="text/css" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    <noscript><link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"></noscript>
+</head>
+<body>
+    <!-- The surrounding HTML is left untouched by FirebaseUI.
+         Your app may use that space for branding, controls and other customizations.-->
+    <h1 class="center" style="font-family: 'Impact','Charcoal','sans-serif';">1. Taekwondo-Club Chemnitz e.V.</h1>
+    <div id="firebaseui-auth-container"></div>
+    <div id="loader">Loading...</div>
+    <div class="center" style="font-weight: bold;">
+        <h3>Passwortanforderungen:</h3>
+        <ul>
+            <li>Mindestens 12 Zeichen</li>
+            <li>Groß- und Kleinbuchstaben</li>
+            <li>Ziffern</li>
+            <li>Sonderzeichen ^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , &gt; &lt; ' : ; | _ ~ `</li>
+        </ul>
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -70,7 +89,7 @@
                         });
 
 
-                        return false;//wait for the session fetchto complete
+                        return false;//wait for the session fetch to complete
                     },
                     signInFailure: error => handleUIError(error),
                     uiShown: () => document.getElementById('loader').style.display = 'none'
@@ -90,23 +109,6 @@
             ui.start('#firebaseui-auth-container', uiConfig);
         }
     </script>
-</head>
-
-<body>
-    <!-- The surrounding HTML is left untouched by FirebaseUI.
-         Your app may use that space for branding, controls and other customizations.-->
-    <h1 class="center" style="font-family: 'Impact','Charcoal','sans-serif';">1. Taekwondo-Club Chemnitz e.V.</h1>
-    <div id="firebaseui-auth-container"></div>
-    <div id="loader">Loading...</div>
-    <div class="center" style="font-weight: bold;">
-        <h3>Passwortanforderungen:</h3>
-        <ui>
-            <li>Mindestens 12 Zeichen</li>
-            <li>Groß- und Kleinbuchstaben</li>
-            <li>Ziffern</li>
-            <li>Sonderzeichen ^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , &gt; &lt; ' : ; | _ ~ `</li>
-        </ui>
-    </div>
 </body>
 
 </html>
