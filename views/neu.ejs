@@ -26,11 +26,11 @@
     <h2>Neue Taekwondoin eintragen</h2>
     <form method="post" action="/neu">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label for="vorname">Vorname</label>
+        <label for="vorname" required>Vorname</label>
         <input type="text" name="vorname" id="vorname">
-        <label for="Nachname">Nachname</label>
+        <label for="Nachname" required>Nachname</label>
         <input type="text" name="nachname" id="nachname">
-        <label for="geburt">Geburtstag</label>
+        <label for="geburt" required>Geburtstag</label>
         <input type="date" name="geburt" id="geburt">
         <label for="uvertrag">Unterrichtsvertrag komplett?</label>
         <input type="checkbox" name="uvertrag" id="uvertrag">

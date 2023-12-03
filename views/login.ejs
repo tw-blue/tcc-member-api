@@ -13,32 +13,16 @@
             justify-content: space-around;
             flex-wrap: wrap;
             align-content: center;
+            background-color: azure;
         }
     </style>
     <link type="text/css" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
     <noscript><link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"></noscript>
-</head>
-<body>
-    <!-- The surrounding HTML is left untouched by FirebaseUI.
-         Your app may use that space for branding, controls and other customizations.-->
-    <h1 class="center" style="font-family: 'Impact','Charcoal','sans-serif';">1. Taekwondo-Club Chemnitz e.V.</h1>
-    <div id="firebaseui-auth-container"></div>
-    <div id="loader">Loading...</div>
-    <div class="center" style="font-weight: bold;">
-        <h3>Passwortanforderungen:</h3>
-        <ul>
-            <li>Mindestens 12 Zeichen</li>
-            <li>Groß- und Kleinbuchstaben</li>
-            <li>Ziffern</li>
-            <li>Sonderzeichen ^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , &gt; &lt; ' : ; | _ ~ `</li>
-        </ul>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
--    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
--    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__de.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js" defer></script>
+-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js" defer></script>
+-    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__de.js" defer></script>
      
-    <script type="text/javascript">
+    <script type="text/javascript" defer>
         window.onpageshow = function () {
             init()
         }
@@ -93,6 +77,22 @@
             ui.start('#firebaseui-auth-container', uiConfig);
         }
     </script>
+</head>
+<body>
+    <!-- The surrounding HTML is left untouched by FirebaseUI.
+         Your app may use that space for branding, controls and other customizations.-->
+    <h1 class="center" style="font-family: 'Impact','Charcoal','sans-serif';">1. Taekwondo-Club Chemnitz e.V.</h1>
+    <div id="firebaseui-auth-container"></div>
+    <div id="loader">Loading...</div>
+    <div class="center" style="font-weight: bold;">
+        <span style="font-weight:bold">Passwortanforderungen:</span>
+        <ul>
+            <li>Mindestens 12 Zeichen</li>
+            <li>Groß- und Kleinbuchstaben</li>
+            <li>Ziffern</li>
+            <li>Sonderzeichen ^ $ * . [ ] { } ( ) ? " ! @ # % & / \ , &gt; &lt; ' : ; | _ ~ `</li>
+        </ul>
+    </div>
 </body>
 
 </html>
