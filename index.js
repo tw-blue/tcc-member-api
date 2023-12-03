@@ -110,11 +110,12 @@ async function memberExists(vorname, nachname, geburt) {
   return count > 0;
 }
 
-async function createMember(vorname, nachname, geburt, uvertrag, verein) {
+async function createMember(vorname, nachname, geburt, geschlecht, uvertrag, verein) {
   return await firestore.collection("Members").add({
     vorname: vorname,
     nachname: nachname,
     geburt: geburt,
+    geschlecht: geschlecht,
     uvertrag: uvertrag ?? false,
     verein: verein ?? false
   });

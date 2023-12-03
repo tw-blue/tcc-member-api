@@ -30,8 +30,14 @@
         <input type="text" name="vorname" id="vorname">
         <label for="Nachname" required>Nachname</label>
         <input type="text" name="nachname" id="nachname">
-        <label for="geburt" required>Geburtstag</label>
+        <label for="geburt" required>Geburtsdatum</label>
         <input type="date" name="geburt" id="geburt">
+        <label for="geschlecht" required>Geschlecht</label>
+        <input type="text" name="geschlecht" id="geschlecht" list="commonGenders">
+        <datalist id="commonGenders">
+            <option value="männlich">
+            <option value="weiblich">
+        </datalist>
         <label for="uvertrag">Unterrichtsvertrag komplett?</label>
         <input type="checkbox" name="uvertrag" id="uvertrag">
         <label for="verein">Verein beigetreten?</label>
