@@ -1,24 +1,37 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import session from "express-session";
 import cookieParser from 'cookie-parser';
-import { csrfSync } from "csrf-sync";
+import { csrfSync, CsrfTokenGenerator } from "csrf-sync";
+declare module "express-serve-static-core" {
+  interface Request {
+    csrfToken?: (overwrite?: boolean) => ReturnType<CsrfTokenGenerator>;
+    token?: DecodedIdToken;
+  }
+}
 import fs, { readFileSync } from 'fs';
 import firebase from "firebase-admin";
 import { initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { DecodedIdToken, getAuth } from "firebase-admin/auth";
 import { getDatabase } from 'firebase-admin/database';
 import connectSessionFirebase from 'connect-session-firebase';
 import { Firestore } from '@google-cloud/firestore';
 const FirebaseStore = connectSessionFirebase(session);
 
-const importJson = (filename) => JSON.parse(
+import path from 'path';
+import * as url from 'url';
+import { CookieOptions } from 'express-serve-static-core';
+function relativePath(relPath: string) {
+  return path.join(url.fileURLToPath(new URL('.', import.meta.url)), relPath);
+}
+
+const importJson = (filename: string) => JSON.parse(
   readFileSync(
-    new URL(filename, import.meta.url)
+    new URL(filename, import.meta.url), 'utf-8'
   )
 );
 
-const firebaseConfig = importJson('./static/firebase-config.json');
-const serviceAccount = importJson('./tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json');//TODO use secret manager for (both of) this
+const firebaseConfig = importJson(relativePath('static/firebase-config.json'));
+const serviceAccount = importJson(relativePath('tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json'));//TODO use secret manager for (both of) this
 /* TODO use this as soon as import assertion stabilizes!
 import firebaseConfig from './static/firebase-config.json' assert { type: 'json' };
 import serviceAccount from './tcc-1-ev-intern-firebase-adminsdk-ejvxt-302d83270e.json' assert { type: 'json' };//TODO use secret manager for (both of) this
@@ -46,14 +59,15 @@ app.use(session({
 }));
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
+app.set('views', relativePath('views'));
 
 const { csrfSynchronisedProtection } = csrfSync({
-  getTokenFromRequest: req => req.headers['x-csrf-token'] ?? req.query['_csrf'] ?? req.body['_csrf']
+  getTokenFromRequest: (req: Request) => req.headers['x-csrf-token'] ?? req.query['_csrf'] ?? req.body['_csrf']
 });
 app.use(csrfSynchronisedProtection);
 
 
-const authenticateJWT = (req, res, next) => {
+const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   const sessionCookie = req.cookies['firebase-session'] || '';
   auth
     .verifySessionCookie(sessionCookie, true)
@@ -64,13 +78,13 @@ const authenticateJWT = (req, res, next) => {
     .catch(error => res.redirect('/login'));
 }
 
-const verifyClaims = (...claims) => {
+const verifyClaims = (...claims: string[]) => {
   return verifyClaimsIntern.bind(null, claims);
 }
 
-const verifyClaimsIntern = (claims, req, res, next) => {
+const verifyClaimsIntern = (claims: string[], req: Request, res: Response, next: NextFunction) => {
   if (req.token) {
-    if (claims.every(requiredToken => req.token[requiredToken] === true)) {
+    if (claims.every(requiredToken => req.token![requiredToken] === true)) {
       next();
     } else {
       console.log(`Missing 1 or more claims of the following: ${claims.toString()}`);
@@ -81,8 +95,9 @@ const verifyClaimsIntern = (claims, req, res, next) => {
   }
 }
 
-app.use(express.static("static", { index: false, extensions: ['html'] }));
-app.get("/favicon.ico", (req, res) => res.redirect("/cropped-logo-32x32.png"));
+app.get("/favicon.ico", (req: Request, res: Response) => res.redirect("/cropped-logo-32x32.png"));
+
+
 
 //Simple CSRF Protected Pages
 const formPages = [
@@ -93,13 +108,19 @@ const formPages = [
 formPages.forEach(page => {
   const path = "/" + page.name;
   if (page.login) app.get(path, authenticateJWT);
-  app.get(path, (req, res) => res.render(page.name, { csrfToken: req.csrfToken() }));
+  app.get(path, (req: Request, res) => {
+    if (req.csrfToken) {
+      res.render(page.name, {
+        csrfToken: req.csrfToken()
+      })
+    } else { res.status(401).send("Missing CSRF-Token"); }
+  });
 });
 
 
 
 
-async function memberExists(vorname, nachname, geburt) {
+async function memberExists(vorname: string, nachname: string, geburt: firebase.firestore.Timestamp) {
   const count = (await firestore
     .collection("Members")
     .where("vorname", "==", vorname)
@@ -110,7 +131,7 @@ async function memberExists(vorname, nachname, geburt) {
   return count > 0;
 }
 
-async function createMember(vorname, nachname, geburt, geschlecht, uvertrag, verein) {
+async function createMember(vorname: string, nachname: string, geburt: firebase.firestore.Timestamp, geschlecht: string, uvertrag: boolean, verein: boolean) {
   return await firestore.collection("Members").add({
     vorname: vorname,
     nachname: nachname,
@@ -121,13 +142,13 @@ async function createMember(vorname, nachname, geburt, geschlecht, uvertrag, ver
   });
 }
 
-async function processData(data, res) {
-  const { vorname, nachname, uvertrag, verein } = data;
-  const geburt = Firestore.Timestamp.fromDate(new Date(data.geburt));
+async function processData(data: { vorname: string, nachname: string, geschlecht: string, geburt: string, uvertrag: boolean, verein: boolean }, res: Response) {
+  const { vorname, nachname, geschlecht, uvertrag, verein } = data;
+  const geburt = firebase.firestore.Timestamp.fromDate(new Date(data.geburt));
 
   if (vorname && nachname && geburt) {
     if (!await memberExists(vorname, nachname, geburt)) {
-      const result = await createMember(vorname, nachname, geburt, uvertrag, verein);
+      const result = await createMember(vorname, nachname, geburt, geschlecht, uvertrag, verein);
       res.send(result);
     } else {
       res.statusCode = 422;
@@ -149,11 +170,11 @@ app.post("/rights", authenticateJWT, (req, res) => {
   if (req.query.action) {
     switch (req.query.action) {
       case "promote":
-        auth.setCustomUserClaims(req.token.uid, { viewMembers: true, manageUsers: true });
+        auth.setCustomUserClaims(req.token!.uid, { viewMembers: true, manageUsers: true });
         logout(req, res);
         break;
       case "demote":
-        auth.setCustomUserClaims(req.token.uid, null);
+        auth.setCustomUserClaims(req.token!.uid, null);
         logout(req, res);
         break;
     }
@@ -189,7 +210,7 @@ app.post('/sessionLogin', (req, res) => {
     if (new Date().getTime() / 1000 - decodedIdToken.auth_time < 5 * 60) {
       const expiresIn = 60 * 60 * 24 * 5 * 1000;
       auth.createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
-        const options = { maxAge: expiresIn, httpOnly: true, secure: true, sameSite: 'strict' };
+        const options: CookieOptions = { maxAge: expiresIn, httpOnly: true, secure: true, sameSite: 'strict' };
         res.cookie('firebase-session', sessionCookie, options);
         res.status(200).end(JSON.stringify({ status: 'success' }));
       },
@@ -202,7 +223,7 @@ app.post('/sessionLogin', (req, res) => {
   });
 });
 
-function logout(req, res) {
+function logout(req: Request, res: Response) {
   const sessionCookie = req.cookies.session || '';
   res.clearCookie('firebase-session');
   auth
@@ -222,7 +243,7 @@ app.post('/sessionLogout', (req, res) => {
   logout(req, res);
 });
 
-const port = parseInt(process.env.PORT) || 8080;
+const port = parseInt(process.env.PORT || "8080");
 if (!process.env.LOCAL_DEV) {
   app.listen(port, () => {
     console.log(`server listening on port ${port}`);
@@ -231,8 +252,8 @@ if (!process.env.LOCAL_DEV) {
   //enable direct https when developing locally
   import('https').then((https) => {
     const credentials = {
-      key: fs.readFileSync('./localhost-key.pem', 'utf-8'),
-      cert: fs.readFileSync('./localhost.pem', 'utf-8'),
+      key: fs.readFileSync(relativePath('localhost-key.pem'), 'utf-8'),
+      cert: fs.readFileSync(relativePath('localhost.pem'), 'utf-8'),
     };
 
     https.createServer(credentials, app).listen(port, () => {
@@ -241,6 +262,8 @@ if (!process.env.LOCAL_DEV) {
   })
 }
 
+
+app.use(express.static(relativePath("static"), { index: false, extensions: ['html', 'json'] }));
 
 //TODO check email verification?
 //TODO look into CORS & OWASP Checklist

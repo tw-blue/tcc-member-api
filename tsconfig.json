@@ -1,0 +1,29 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "include": [
+        "tsc_src/**/*",
+        "tsc_src/**/*.json"
+    ],
+    "compilerOptions": {
+        "rootDir": "./tsc_src",
+        "outDir": "./js_out",
+        "typeRoots": [
+            "./tsc_src/customDeclarations"
+        ],
+        "allowJs": true,
+        "checkJs": true,
+        "lib": [
+            "es2023"
+        ],
+        "module": "node16",
+        "target": "es2022",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node16",
+        "incremental": true,
+        "composite": true,
+        "resolveJsonModule": true,
+    }
+}

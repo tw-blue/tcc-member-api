@@ -3,11 +3,13 @@
     "description": "",
     "version": "0.1.0",
     "private": true,
-    "main": "index.js",
+    "main": "js_out/index.js",
     "type": "module",
     "scripts": {
-        "start": "node index.js",
+        "start": "node js_out/index.js",
+        "predeploy": "tsc -p . && copy_ressources.bat",
         "deploy": "gcloud builds submit --gcs-source-staging-dir=\"gs://tcc-1-ev-intern_cloudbuild/source/\" --region=europe-west1 --pack image=europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db . && gcloud run deploy tcc-member-db --region=europe-west1 --image europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db",
+        "predev": "tsc_watch.bat",
         "dev": "gcloud alpha code dev --env-vars LOCAL_DEV=1 --service-account tcc-member-db@tcc-1-ev-intern.iam.gserviceaccount.com",
         "_comment": "using gcloud alpha for --env-vars"
     },
@@ -26,5 +28,10 @@
         "express-session": "^1.17.3",
         "firebase-admin": "^11.11.1",
         "google-auth-library": "^9.4.1"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.6",
+        "@types/express-session": "^1.17.10",
+        "typescript": "^5.3.3"
     }
 }
