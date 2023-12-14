@@ -7,7 +7,7 @@
     "type": "module",
     "scripts": {
         "start": "node js_out/index.js",
-        "predeploy": "tsc -p . && copy_ressources.bat",
+        "predeploy": "tsc -p . && copy_resources.bat",
         "deploy": "gcloud builds submit --gcs-source-staging-dir=\"gs://tcc-1-ev-intern_cloudbuild/source/\" --region=europe-west1 --pack image=europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db . && gcloud run deploy tcc-member-db --region=europe-west1 --image europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db",
         "predev": "tsc_watch.bat",
         "dev": "gcloud alpha code dev --env-vars LOCAL_DEV=1 --service-account tcc-member-db@tcc-1-ev-intern.iam.gserviceaccount.com",
