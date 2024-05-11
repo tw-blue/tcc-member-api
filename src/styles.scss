@@ -11,11 +11,11 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$tcc-member-db-primary: mat.define-palette(mat.$blue-palette, 800, 500, 900);
-$tcc-member-db-accent: mat.define-palette(mat.$red-palette, 800, 400, 900);
+$tcc-member-db-primary: mat.define-palette(mat.$blue-palette, 800, 200, 900);
+$tcc-member-db-accent: mat.define-palette(mat.$red-palette, 800, 300, 900);
 
 // The warn palette is optional (defaults to red).
-$tcc-member-db-warn: mat.define-palette(mat.$yellow-palette, 800, 500, 900);
+$tcc-member-db-warn: mat.define-palette(mat.$orange-palette, 800, 500, 900);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
