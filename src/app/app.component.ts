@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Firestore } from '@angular/fire/firestore';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -10,4 +11,5 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'tcc-member-db';
+  firestore: Firestore = inject(Firestore);
 }

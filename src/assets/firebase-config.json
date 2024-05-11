@@ -5,5 +5,6 @@
     "storageBucket": "tcc-1-ev-intern.appspot.com",
     "messagingSenderId": "744366924996",
     "appId": "1:744366924996:web:ae361bc2c2dd91096a5591",
-    "databaseURL": "https://tcc-1-ev-intern-default-rtdb.europe-west1.firebasedatabase.app/"
+    "databaseURL": "https://tcc-1-ev-intern-default-rtdb.europe-west1.firebasedatabase.app/",
+    "locationId": "europe-west"
 }
