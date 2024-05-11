@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:tcc-member-db": "node dist/tcc-member-db/server/server.mjs"
+    "serve:ssr:tcc-member-db": "node dist/tcc-member-db/server/server.mjs",
+    "deploy": "gcloud builds submit --gcs-source-staging-dir=\"gs://tcc-1-ev-intern_cloudbuild/source/\" --region=europe-west1 --pack image=europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db . && gcloud run deploy tcc-member-db --region=europe-west1 --image europe-west1-docker.pkg.dev/tcc-1-ev-intern/cloud-run-source-deploy/tcc-member-db"
   },
   "private": true,
   "dependencies": {
