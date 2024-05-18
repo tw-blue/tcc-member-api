@@ -195,7 +195,7 @@
                         "type": "string"
                     },
                     "letztePruefung": {
-                        "$ref": "#components/schemas/Date"
+                        "$ref": "#/components/schemas/Date"
                     },
                     "kontakt": {
                         "type": "string"
