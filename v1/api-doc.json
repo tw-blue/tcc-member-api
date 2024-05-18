@@ -1,0 +1,238 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Tcc  Member API",
+        "description": "API for the TCC Member Database",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://localhost:8080/api/v1",
+            "description": "Development server"
+        },
+        {
+            "url": "https://tcc-member-db-4bfaysdsja-ew.a.run.app/api/v1",
+            "description": "Production server"
+        }
+    ],
+    "paths": {
+        "/ok": {
+            "get": {
+                "operationId": "getOk",
+                "summary": "Check if the API is running",
+                "responses": {
+                    "200": {
+                        "description": "API is running"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth": {
+            "get": {
+                "operationId": "getAuth",
+                "summary": "Check if the user is authenticated",
+                "responses": {
+                    "200": {
+                        "description": "User is authenticated"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                }
+            }
+        },
+        "/viewClaim": {
+            "get": {
+                "operationId": "getViewClaim",
+                "summary": "Test if the User has the View-Members Claim",
+                "responses": {
+                    "200": {
+                        "description": "User has the View-Members Claim"
+                    },
+                    "401": {
+                        "description": "User does not have the View-Members Claim"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/members": {
+            "get": {
+                "operationId": "getMembers",
+                "summary": "Get all Members",
+                "responses": {
+                    "200": {
+                        "description": "List of all Members",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Member"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "postMembers",
+                "summary": "Add a new Member",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Member"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Member added"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "operationId": "getUsers",
+                "summary": "Get all Users",
+                "responses": {
+                    "200": {
+                        "description": "List of all Users",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_manageUsers"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "Bearer",
+                "description": "JWT token",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Member": {
+                "type": "object",
+                "properties": {
+                    "vorname": {
+                        "type": "string"
+                    },
+                    "nachname": {
+                        "type": "string"
+                    },
+                    "gebutsdatum": {
+                        "$ref": "#/components/schemas/Date"
+                    },
+                    "geburtsort": {
+                        "type": "string"
+                    },
+                    "geschlecht": {
+                        "type": "string"
+                    },
+                    "passnummer": {
+                        "type": "string"
+                    },
+                    "uvertrag": {
+                        "type": "boolean"
+                    },
+                    "verein": {
+                        "type": "boolean"
+                    },
+                    "graduierung": {
+                        "type": "string"
+                    },
+                    "letztePruefung": {
+                        "$ref": "#components/schemas/Date"
+                    },
+                    "kontakt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Date": {
+                "type": "string"
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "customClaims": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "emailVerified": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
