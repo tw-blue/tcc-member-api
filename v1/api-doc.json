@@ -173,7 +173,7 @@
                     "nachname": {
                         "type": "string"
                     },
-                    "gebutsdatum": {
+                    "geburtsdatum": {
                         "$ref": "#/components/schemas/Date"
                     },
                     "geburtsort": {
