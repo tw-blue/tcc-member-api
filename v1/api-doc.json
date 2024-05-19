@@ -131,6 +131,53 @@
                     }
                 ]
             }
+        },
+        "/claims": {
+            "put": {
+                "operationId": "putClaims",
+                "summary": "Update Claim Value for User",
+                "responses": {
+                    "200": {
+                        "description": "Claim updated"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "claim",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Claim"
+                        }
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_manageUsers"
+                        ]
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -182,6 +229,9 @@
                 }
             },
             "Date": {
+                "type": "string"
+            },
+            "Claim": {
                 "type": "string"
             },
             "User": {
