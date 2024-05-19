@@ -42,27 +42,6 @@
                 }
             }
         },
-        "/viewClaim": {
-            "get": {
-                "operationId": "getViewClaim",
-                "summary": "Test if the User has the View-Members Claim",
-                "responses": {
-                    "200": {
-                        "description": "User has the View-Members Claim"
-                    },
-                    "401": {
-                        "description": "User does not have the View-Members Claim"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": [
-                            "cc_viewMembers"
-                        ]
-                    }
-                ]
-            }
-        },
         "/members": {
             "get": {
                 "operationId": "getMembers",
