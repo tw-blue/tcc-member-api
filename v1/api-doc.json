@@ -1,9 +1,14 @@
 {
-    "openapi": "3.0.1",
+    "openapi": "3.1.0",
     "info": {
         "title": "Tcc  Member API",
         "description": "API for the TCC Member Database",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "contact": {
+            "name": "TCC",
+            "url": "https://taekwondo-chemnitz-toni714.de/kontakt",
+            "email": "toniwalter.blue@gmail.com"
+        }
     },
     "servers": [
         {
@@ -20,6 +25,9 @@
             "get": {
                 "operationId": "getOk",
                 "summary": "Check if the API is running",
+                "tags": [
+                    "Health Check"
+                ],
                 "responses": {
                     "200": {
                         "description": "API is running"
@@ -32,6 +40,9 @@
             "get": {
                 "operationId": "getAuth",
                 "summary": "Check if the user is authenticated",
+                "tags": [
+                    "Health Check"
+                ],
                 "responses": {
                     "200": {
                         "description": "User is authenticated"
@@ -46,16 +57,16 @@
             "get": {
                 "operationId": "getMembers",
                 "summary": "Get all Members",
+                "tags": [
+                    "View"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all Members",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Member"
-                                    }
+                                    "$ref": "#/components/schemas/Member"
                                 }
                             }
                         }
@@ -75,6 +86,9 @@
             "post": {
                 "operationId": "postMembers",
                 "summary": "Add a new Member",
+                "tags": [
+                    "Modify"
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -105,16 +119,16 @@
             "get": {
                 "operationId": "getUsers",
                 "summary": "Get all Users",
+                "tags": [
+                    "View"
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all Users",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/User"
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -132,10 +146,13 @@
                 ]
             }
         },
-        "/claims": {
+        "/claims/{uid}/{claim}": {
             "put": {
                 "operationId": "putClaims",
                 "summary": "Update Claim Value for User",
+                "tags": [
+                    "Modify"
+                ],
                 "responses": {
                     "200": {
                         "description": "Claim updated"
@@ -150,7 +167,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Firebase User-ID"
                         }
                     },
                     {
@@ -241,10 +259,7 @@
                         "type": "string"
                     },
                     "customClaims": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "$ref": "#/components/schemas/Claims"
                     },
                     "email": {
                         "type": "string"
@@ -256,12 +271,32 @@
                         "type": "boolean"
                     }
                 }
+            },
+            "Claims": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
             }
         }
     },
     "security": [
         {
             "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Health Check",
+            "description": "Check if the API is running &  well"
+        },
+        {
+            "name": "View",
+            "description": "View Data"
+        },
+        {
+            "name": "Modify",
+            "description": "Modify/Create Data"
         }
     ]
 }
