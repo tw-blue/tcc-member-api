@@ -217,6 +217,9 @@
             "Member": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "string"
+                    },
                     "vorname": {
                         "type": "string"
                     },
