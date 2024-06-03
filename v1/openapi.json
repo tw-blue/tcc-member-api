@@ -204,6 +204,38 @@
             }
         },
         "/exam/registration": {
+            "get": {
+                "operationId": "getExamRegistrations",
+                "summary": "List all Exam Registrations",
+                "tags": [
+                    "View"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of registered Members",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ExamMember"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            },
             "post": {
                 "operationId": "postExamRegistration",
                 "summary": "Register a Member for an Exam",
@@ -321,6 +353,53 @@
                 }
             },
             "ExamRegistration": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "string"
+                    },
+                    "clubStatus": {
+                        "type": "integer"
+                    },
+                    "newKup": {
+                        "type": "integer"
+                    },
+                    "parentalConsent": {
+                        "type": "integer"
+                    },
+                    "spellingConfirmation": {
+                        "type": "integer"
+                    },
+                    "fee": {
+                        "type": "integer"
+                    },
+                    "feePaid": {
+                        "type": "boolean"
+                    },
+                    "vorname": {
+                        "type": "string"
+                    },
+                    "nachname": {
+                        "type": "string"
+                    },
+                    "geburtsdatum": {
+                        "$ref": "#/components/schemas/Date"
+                    },
+                    "geburtsort": {
+                        "type": "string"
+                    },
+                    "geschlecht": {
+                        "type": "string"
+                    },
+                    "passnummer": {
+                        "type": "string"
+                    },
+                    "graduierung": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ExamMember": {
                 "type": "object",
                 "properties": {
                     "memberId": {
