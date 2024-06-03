@@ -218,16 +218,15 @@
                         "description": "User is not authenticated"
                     }
                 },
-                "parameters": [
-                    {
-                        "name": "registration",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/ExamRegistration"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExamRegistration"
+                            }
                         }
                     }
-                ],
+                },
                 "security": [
                     {
                         "bearerAuth": [
