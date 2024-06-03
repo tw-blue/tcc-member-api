@@ -202,6 +202,40 @@
                     }
                 ]
             }
+        },
+        "/exam/registration": {
+            "post": {
+                "operationId": "postExamRegistration",
+                "summary": "Register a Member for an Exam",
+                "tags": [
+                    "Modify"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member Registered"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "registration",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ExamRegistration"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -285,6 +319,32 @@
                 "type": "array",
                 "items": {
                     "type": "string"
+                }
+            },
+            "ExamRegistration": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "string"
+                    },
+                    "clubStatus": {
+                        "type": "integer"
+                    },
+                    "newKup": {
+                        "type": "integer"
+                    },
+                    "parentalConsent": {
+                        "type": "integer"
+                    },
+                    "spellingConfirmation": {
+                        "type": "integer"
+                    },
+                    "fee": {
+                        "type": "integer"
+                    },
+                    "feePaid": {
+                        "type": "boolean"
+                    }
                 }
             }
         }
