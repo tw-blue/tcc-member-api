@@ -266,6 +266,39 @@
                         ]
                     }
                 ]
+            },
+            "delete": {
+                "operationId": "deleteExamRegistration",
+                "summary": "Delete a Member from the Exam Registration",
+                "tags": [
+                    "Modify"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member deleted"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            
             }
         }
     },
