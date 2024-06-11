@@ -218,7 +218,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/ExamMember"
+                                        "$ref": "#/components/schemas/ExamRegistration"
                                     }
                                 }
                             }
@@ -254,7 +254,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ExamRegistration"
+                                "$ref": "#/components/schemas/ExamMember"
                             }
                         }
                     }
@@ -298,7 +298,6 @@
                         ]
                     }
                 ]
-            
             }
         }
     },
