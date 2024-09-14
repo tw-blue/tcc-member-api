@@ -1,4 +1,4 @@
-enum SchoolMemberState {
+export enum SchoolMemberState {
     Unknown = 0,
     TookHomeContract,
     GaveBackContract,
