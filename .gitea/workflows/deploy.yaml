@@ -6,7 +6,27 @@ on:
       - main
 
 jobs:
-  test:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Testing"
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the package
+        run: npm run build
+
+      - name: Publish to Gitea Package Registry
+        env:
+          GITEA_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          npm config set registry https://server:3000/api/v1/packages/npm/
+          npm config set //server:3000/api/v1/packages/npm/:_authToken $GITEA_TOKEN
+          npm publish
