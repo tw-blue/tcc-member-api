@@ -1,0 +1,9 @@
+name: Gitea Deploy
+run-name: Deploy
+on: [workflow_dispatch ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Testing"

@@ -1,16 +1,24 @@
 {
   "name": "tcc-member-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json",
+    "package-lock.json"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "regen-openapi": "oazapfts ./src/api/v1/openapi.json ./src/api/v1/openapi.ts"
+    "build": "tsup"
   },
   "author": "",
   "license": "UNLICENSED",
   "description": "",
   "devDependencies": {
-    "oazapfts": "^6.1.0"
+    "oazapfts": "^6.1.0",
+    "tsup": "^8.2.4"
   },
   "dependencies": {
     "@oazapfts/runtime": "^1.0.3"
