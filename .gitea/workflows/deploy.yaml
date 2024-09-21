@@ -9,13 +9,11 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - run: git clone http://server:3000/tw-blue/tcc-member-api.git
+      - run: git clone http://localhost:3000/tw-blue/tcc-member-api.git
       - run: cd tcc-member-api
       - run: ls
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          github-server-url: 'http://server.docker:3000'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
