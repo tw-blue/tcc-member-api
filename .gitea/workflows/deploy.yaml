@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          github-server-url: http://localhost:3000
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,6 +29,6 @@ jobs:
         env:
           GITEA_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          npm config set registry http://server:3000/api/v1/packages/npm/
-          npm config set //server:3000/api/v1/packages/npm/:_authToken $GITEA_TOKEN
+          npm config set registry http://localhost:3000/api/v1/packages/npm/
+          npm config set //localhost:3000/api/v1/packages/npm/:_authToken $GITEA_TOKEN
           npm publish
