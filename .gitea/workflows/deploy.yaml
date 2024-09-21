@@ -9,6 +9,8 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
+      - run: dig server
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -27,6 +29,6 @@ jobs:
         env:
           GITEA_TOKEN: ${{ secrets.TOKEN }}
         run: |
-          npm config set registry https://server:3000/api/v1/packages/npm/
+          npm config set registry http://server:3000/api/v1/packages/npm/
           npm config set //server:3000/api/v1/packages/npm/:_authToken $GITEA_TOKEN
           npm publish
