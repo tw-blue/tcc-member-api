@@ -1,26 +1,34 @@
 {
-  "name": "tcc-member-api",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "name": "@tw-blue/tcc-member-api",
+  "version": "1.0.3",
+  "main": "lib/index.js",
+  "type": "module",
+  "types": "types/index.d.ts",
   "files": [
-    "dist",
-    "package.json",
-    "package-lock.json"
+    "lib",
+    "types"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsup"
+    "prebuild": "pwsh compile-api.ps1",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "author": "",
   "license": "UNLICENSED",
   "description": "",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "url": "git+https://github.com/tw-blue/tcc-member-api.git"
+  },
   "devDependencies": {
     "oazapfts": "^6.1.0",
-    "tsup": "^8.2.4"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
-    "@oazapfts/runtime": "^1.0.3"
+    "@oazapfts/runtime": "^1.0.3",
+    "@types/node": "^22.5.5",
+    "tslib": "^2.7.0"
   }
 }
