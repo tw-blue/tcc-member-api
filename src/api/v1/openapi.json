@@ -118,6 +118,49 @@
                 ]
             }
         },
+        "/members/{memberId}": {
+            "post": {
+                "operationId": "postMember",
+                "summary": "Update a member",
+                "tags": [
+                    "Modify"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Member"
+                            }
+                        }
+                    }
+                },
+                "parameters":[
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member added"
+                    },
+                    "401": {
+                        "description": "User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "cc_viewMembers"
+                        ]
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "operationId": "getUsers",

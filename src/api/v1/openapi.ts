@@ -68,96 +68,106 @@ export type ExamMember = {
  * Check if the API is running
  */
 export function getOk(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText("/ok", {
+    return oazapfts.ok(oazapfts.fetchText("/ok", {
         ...opts
-    });
+    }));
 }
 /**
  * Check if the user is authenticated
  */
 export function getAuth(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText("/auth", {
+    return oazapfts.ok(oazapfts.fetchText("/auth", {
         ...opts
-    });
+    }));
 }
 /**
  * Get all Members
  */
 export function getMembers(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchJson<{
+    return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: Member[];
     } | {
         status: 401;
     }>("/members", {
         ...opts
-    });
+    }));
 }
 /**
  * Add a new Member
  */
 export function postMembers(member?: Member, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText("/members", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/members", oazapfts.json({
         ...opts,
         method: "POST",
         body: member
-    }));
+    })));
+}
+/**
+ * Update a member
+ */
+export function postMember(memberId: string, member?: Member, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/members/${encodeURIComponent(memberId)}`, oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: member
+    })));
 }
 /**
  * Get all Users
  */
 export function getUsers(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchJson<{
+    return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: User[];
     } | {
         status: 401;
     }>("/users", {
         ...opts
-    });
+    }));
 }
 /**
  * Update Claim Value for User
  */
 export function putClaims(uid: string, claim: Claim, value: boolean, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText(`/claims/${encodeURIComponent(uid)}/${encodeURIComponent(claim)}${QS.query(QS.explode({
+    return oazapfts.ok(oazapfts.fetchText(`/claims/${encodeURIComponent(uid)}/${encodeURIComponent(claim)}${QS.query(QS.explode({
         value
     }))}`, {
         ...opts,
         method: "PUT"
-    });
+    }));
 }
 /**
  * List all Exam Registrations
  */
 export function getExamRegistrations(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchJson<{
+    return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ExamRegistration[];
     } | {
         status: 401;
     }>("/exam/registration", {
         ...opts
-    });
+    }));
 }
 /**
  * Register a Member for an Exam
  */
 export function postExamRegistration(examMember?: ExamMember, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText("/exam/registration", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/exam/registration", oazapfts.json({
         ...opts,
         method: "POST",
         body: examMember
-    }));
+    })));
 }
 /**
  * Delete a Member from the Exam Registration
  */
 export function deleteExamRegistration(memberId: string, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.fetchText(`/exam/registration${QS.query(QS.explode({
+    return oazapfts.ok(oazapfts.fetchText(`/exam/registration${QS.query(QS.explode({
         memberId
     }))}`, {
         ...opts,
         method: "DELETE"
-    });
+    }));
 }
