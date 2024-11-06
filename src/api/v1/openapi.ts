@@ -29,6 +29,8 @@ export type Member = {
     graduierung?: string;
     letztePruefung?: Date;
     kontakt?: string;
+    kuendigungzum?: Date;
+    loeschenam?: Date;
 };
 export type Claims = string[];
 export type User = {
@@ -111,6 +113,16 @@ export function postMember(memberId: string, member?: Member, opts?: Oazapfts.Re
         ...opts,
         method: "POST",
         body: member
+    })));
+}
+/**
+ * Schedule the deletion of a Member
+ */
+export function deleteMember(memberId: string, date?: Date, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/members/${encodeURIComponent(memberId)}`, oazapfts.json({
+        ...opts,
+        method: "DELETE",
+        body: date
     })));
 }
 /**

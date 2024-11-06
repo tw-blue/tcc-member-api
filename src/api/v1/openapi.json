@@ -143,6 +143,41 @@
             "bearerAuth": ["cc_viewMembers"]
           }
         ]
+      },
+      "delete": {
+        "operationId": "deleteMember",
+        "summary": "Schedule the deletion of a Member",
+        "tags": ["Delete", "Schedule"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Date"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member scheduled for deletion"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": {
+          "bearerAuth": ["cc_viewMembers"]
+        }
       }
     },
     "/users": {
@@ -356,6 +391,12 @@
           },
           "kontakt": {
             "type": "string"
+          },
+          "kuendigungzum": {
+            "$ref": "#/components/schemas/Date"
+          },
+          "loeschenam": {
+            "$ref": "#/components/schemas/Date"
           }
         }
       },
