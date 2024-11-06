@@ -1,6 +1,6 @@
 {
   "name": "@tw-blue/tcc-member-api",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "lib/index.js",
   "type": "module",
   "types": "types/index.d.ts",
