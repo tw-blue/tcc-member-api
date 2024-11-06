@@ -363,7 +363,8 @@
         "type": "string"
       },
       "Claim": {
-        "type": "string"
+        "type": "string",
+        "enum": ["cc_viewMembers", "cc_manageUsers"]
       },
       "User": {
         "type": "object",

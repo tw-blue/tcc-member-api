@@ -38,7 +38,7 @@ export type User = {
     uid?: string;
     emailVerified?: boolean;
 };
-export type Claim = string;
+export type Claim = "cc_viewMembers" | "cc_manageUsers";
 export type ExamRegistration = {
     memberId?: string;
     clubStatus?: number;
