@@ -1,10 +1,2 @@
-#!/bin/sh
+#!/usr/bin/env powershell
 
-for file in $(git diff --name-only --cached); do
-  # If file starts with src/api, then run the following
-  if [[ $file == src/api* ]]; then
-	echo "Recompiling OpenAPI File: $file"
-	npx oazapfts -- --optimistic $file ${file%.*}.ts
-	git add ${file%.*}.ts
-  fi
-done
