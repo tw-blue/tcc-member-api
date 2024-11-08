@@ -1,12 +1,11 @@
 {
   "name": "@tw-blue/tcc-member-api",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "lib/index.js",
   "type": "module",
-  "types": "types/index.d.ts",
+  "types": "lib/index.d.ts",
   "files": [
-    "lib",
-    "types"
+    "lib"
   ],
   "scripts": {
     "prebuild": "pwsh compile-api.ps1",
