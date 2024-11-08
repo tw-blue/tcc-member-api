@@ -28,7 +28,15 @@
         "tags": ["Health Check"],
         "responses": {
           "200": {
-            "description": "API is running"
+            "description": "API is running",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Ok"
+                }
+              }
+            }
           }
         },
         "security": []
@@ -41,7 +49,15 @@
         "tags": ["Health Check"],
         "responses": {
           "200": {
-            "description": "User is authenticated"
+            "description": "User is authenticated",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Ok"
+                }
+              }
+            }
           },
           "401": {
             "description": "User is not authenticated"
@@ -175,9 +191,11 @@
             "description": "User is not authenticated"
           }
         },
-        "security": {
-          "bearerAuth": ["cc_viewMembers"]
-        }
+        "security": [
+          {
+            "bearerAuth": ["cc_viewMembers"]
+          }
+        ]
       }
     },
     "/users": {
@@ -525,6 +543,14 @@
     {
       "name": "Modify",
       "description": "Modify/Create Data"
+    },
+    {
+      "name": "Delete",
+      "description": "Delete an Object"
+    },
+    {
+      "name": "Schedule",
+      "description": "Schedule an Operation to happen at a later time"
     }
   ]
 }
